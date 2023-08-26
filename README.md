@@ -1,3 +1,7 @@
+# Frontend Masters Alogirthm Course
+
+Just refreshing some basic algos and TS.
+
 ## Developed live on twitch
 [ThePrimeagen](https://twitch.tv/ThePrimeagen)
 

@@ -1,5 +1,5 @@
-function do_search(head: BinaryNode<number> | undefined, res: number[]): number[] {
-	if (head == undefined) {
+function do_search(head: BinaryNode<number> | null, res: number[]): number[] {
+	if (head == null) {
 		return res;
 	}
 	do_search(head.left, res);
