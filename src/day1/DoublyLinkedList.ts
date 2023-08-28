@@ -1,158 +1,220 @@
-class Node<T> {
-	val: T;
-	next?: Node<T>;
-	prev?: Node<T>;
+export class Node<T> {
+    value: T;
+    next?: Node<T>;
+    prev?: Node<T>;
 
-	constructor(val: T, next?: Node<T>, prev?: Node<T>) {
-		this.val = val;
-		this.next = next;
-		this.prev = prev;
-	}
+    constructor(value: T, next?: Node<T>, prev?: Node<T>) {
+        this.value = value;
+        this.next = next;
+        this.prev = prev;
+    }
 }
 export default class DoublyLinkedList<T> {
-	public length: number;
-	private head?: Node<T>;
-	private tail?: Node<T>;
+    public length: number;
+    private head?: Node<T>;
+    private tail?: Node<T>;
 
-	constructor() {
-		this.length = 0;
-		this.head = undefined;
-		this.tail = undefined;
-	}
+    constructor() {
+        this.length = 0;
+        this.head = undefined;
+        this.tail = undefined;
+    }
 
-	prepend(item: T): void {
-		const node = new Node(item, this.head, undefined);
-		this.length++;
-		const next = this.head?.next;
-		if (next) {
-			next.prev = node;
-		}
-		this.head = node;
-		if (this.tail == undefined) {
-			this.tail = node;
-		}
-		return;
-	}
+    prepend(item: T): Node<T> {
 
-	insertAt(item: T, idx: number): void {
-		if (idx > this.length) {
-			throw new Error("yikes");
-		} else if (idx == this.length) {
-			this.append(item);
-		} else if (idx == 0) {
-			this.prepend(item);
-		}
+        if (this.head == undefined || this.tail == undefined) {
+            const node = new Node(item, undefined, undefined);
+            this.length++;
+            this.head = this.tail = node
+            return node;
+        }
 
-		let cur = this.head;
-		for (let i = 0; i < idx; i++) {
-			if (cur && cur.next) {
-				cur = cur?.next;
-			}
-		}
-		if (!cur) { 
-			return undefined 
-		}
-		const node = new Node(item, cur.next, cur.prev);
-		this.length++;
-		cur.next = node;
-		cur.prev = node;
-		return;
+        this.length++;
+        const node = new Node(item, this.head, undefined);
+        node.next = this.head;
+        this.head.prev = node;
+        this.head = node;
+        return node;
+    }
 
-	}
-	append(item: T): void {
-		if (this.tail == undefined) {
-			this.head = new Node(item, undefined, undefined);
-			this.tail = this.head;
-			this.length++;
-			return;
-		}
+    insertAt(item: T, idx: number): void {
+        if (idx > this.length) {
+            throw new Error("yikes");
+        } else if (idx == this.length) {
+            this.append(item);
+        } else if (idx == 0) {
+            this.prepend(item);
+        }
 
-		const node = new Node(item, undefined, this.tail);
-		this.tail.next = node;
-		this.tail = node;
-		this.length++;
+        let cur = this.head;
+        for (let i = 0; i < idx; i++) {
+            if (cur && cur.next) {
+                cur = cur?.next;
+            }
+        }
+        if (!cur) {
+            return undefined
+        }
+        const node = new Node(item, cur.next, cur.prev);
+        this.length++;
+        cur.next = node;
+        cur.prev = node;
+        return;
 
-	}
-	remove(item: T): T | undefined {
-		if (this.head == undefined) {
-			return undefined;
-		}
+    }
+    append(item: T): Node<T> {
+        if (this.tail == undefined) {
+            this.head = new Node(item, undefined, undefined);
+            this.tail = this.head;
+            this.length++;
+            return this.head;
+        }
 
-		let cur: Node<T> | undefined = this.head;
-		for (let i = 0; i < this.length; i++) {
-			if (!cur || cur.val == item) {
-				break;
-			}
-			cur = cur.next;
-		}
+        const node = new Node(item, undefined, this.tail);
+        this.tail.next = node;
+        this.tail = node;
+        this.length++;
+        return node;
 
-		if (!cur) {
-			return undefined;
-		}
+    }
+    public remove_tail(): T | undefined {
+        if (this.tail == undefined) {
+            return;
+        }
+        if (this.tail.prev == undefined) {
+            let value = this.tail.value;
+            this.tail = this.head = undefined;
+            this.length--;
+            return value;
+        }
 
-		if (cur.prev == undefined) {
-			this.head = cur.next;
-		}
-		if (cur.next == undefined) {
-			this.tail = cur.prev;
-		}
-		if (cur.prev) {
-			cur.next = cur.next;
-		}
-		if (cur.next) {
-			cur.prev = cur.prev;
-		}
-		this.length--;
-		return cur.val;
-	}
-	get(idx: number): T | undefined {
-		return this.get_node(idx)?.val;
-	}
-	private get_node(idx: number): Node<T> | undefined {
-		if (idx > this.length / 2) {
-			return this.get_back(idx);
-		} else {
-			return this.get_front(idx);
-		}
-	}
-	private get_front(idx: number): Node<T> | undefined {
-		let cur = this.head;
-		for (let i = 0; i < idx; i++) {
-			cur = cur?.next;
-		}
-		return cur;
-	}
-	private get_back(idx: number): Node<T> | undefined {
-		let cur = this.tail;
-		for (let i = this.length - 1; i > idx; i--) {
-			cur = cur?.prev;
-		}
-		return cur;
-	}
-	removeAt(idx: number): T | undefined {
-		if (this.head == undefined) {
-			return undefined;
-		}
+        let tail = this.tail;
+        let value = tail.value;
+        console.log("tail value:", value);
 
-		let cur = this.get_node(idx);
+        let prev = this.tail.prev;
+        prev.next = undefined;
+        if (this.tail.prev) {
+            this.tail.prev.next = this.tail;
+        }
+        this.tail = prev;
+        this.length--;
 
-		if (cur == undefined) {
-			return undefined;
-		}
+        return value;
+    }
+    public remove_node(node: Node<T>): void {
+        if (node == undefined) {
+            return;
+        }
 
-		if (cur.prev == undefined) {
-			this.head = cur.next;
-		}
-		if (cur.next == undefined) {
-			this.tail = cur.prev;
-		}
-		if (cur.prev) {
-			cur.prev.next = cur.next;
-		}
-		if (cur.next) {
-			cur.next.prev = cur.prev;
-		}
-		this.length--;
-		return cur?.val;
-	}
+        console.log(`remove ${node.value}`)
+        this.print()
+        let prev = node.prev;
+        if (prev == undefined) {
+            this.head = node.next;
+        }
+
+        let next = node.next;
+        if (next == undefined) {
+            this.tail = node.prev;
+        }
+        if (prev) {
+            prev.next = node.prev;
+        }
+        if (next) {
+            next.prev = node.next;
+        }
+        this.length--;
+        this.print()
+        console.log(`remove done ${node.value}`)
+    }
+    remove(item: T): T | undefined {
+        if (this.head == undefined) {
+            return undefined;
+        }
+
+        let cur: Node<T> | undefined = this.head;
+        for (let i = 0; i < this.length; i++) {
+            if (!cur || cur.value == item) {
+                break;
+            }
+            cur = cur.next;
+        }
+
+        if (!cur) {
+            return undefined;
+        }
+
+        this.remove_node(cur);
+
+        return cur.value;
+    }
+    get(idx: number): T | undefined {
+        return this.get_node(idx)?.value;
+    }
+    private get_node(idx: number): Node<T> | undefined {
+        if (idx > this.length / 2) {
+            return this.get_back(idx);
+        } else {
+            return this.get_front(idx);
+        }
+    }
+    private get_front(idx: number): Node<T> | undefined {
+        let cur = this.head;
+        for (let i = 0; i < idx; i++) {
+            cur = cur?.next;
+        }
+        return cur;
+    }
+    private get_back(idx: number): Node<T> | undefined {
+        let cur = this.tail;
+        for (let i = this.length - 1; i > idx; i--) {
+            cur = cur?.prev;
+        }
+        return cur;
+    }
+    removeAt(idx: number): T | undefined {
+        if (this.head == undefined) {
+            return undefined;
+        }
+
+        let cur = this.get_node(idx);
+
+        if (cur == undefined) {
+            return undefined;
+        }
+
+        if (cur.prev == undefined) {
+            this.head = cur.next;
+        }
+        if (cur.next == undefined) {
+            this.tail = cur.prev;
+        }
+        if (cur.prev) {
+            cur.prev.next = cur.next;
+        }
+        if (cur.next) {
+            cur.next.prev = cur.prev;
+        }
+        this.length--;
+        return cur?.value;
+    }
+    print() {
+        let s = "head->[";
+        let cur = this.head;
+        for (let i = 0; i < this.length; i++) {
+            s += ` ${cur?.value},`;
+            cur = cur?.next;
+        }
+        s += "]";
+        console.log(s);
+        s = "tail->[";
+        cur = this.tail;
+        for (let i = 0; i < this.length; i++) {
+            s += ` ${cur?.value},`;
+            cur = cur?.prev;
+        }
+        s += "]";
+        console.log(s);
+    }
 }
